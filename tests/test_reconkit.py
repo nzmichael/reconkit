@@ -30,7 +30,7 @@ NMAP_XML = """<?xml version="1.0"?>
 <port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/>
  <service name="http" product="Apache httpd" version="2.4.7" extrainfo="(Ubuntu)"/></port>
 <port protocol="tcp" portid="23"><state state="open" reason="syn-ack"/><service name="telnet"/></port>
-<port protocol="tcp" portid="9929"><state state="open" reason="syn-ack"/><service name="nping-echo"/></port>
+<port protocol="tcp" portid="9929"><state state="open" reason="syn-ack"/><service name="nping-echo" product="Nping echo"/></port>
 <port protocol="tcp" portid="31337"><state state="open" reason="syn-ack"/><service name="tcpwrapped"/></port>
 </ports></host></nmaprun>"""
 
@@ -94,6 +94,8 @@ def test_nmap_parse_and_explain():
     assert "OpenSSH 6.6.1p1" in ssh.evidence
     assert any("nvd.nist.gov" in r for r in ssh.references)
     assert any("tcpwrapped" in f.what_it_means for f in findings)
+    nping = next(f for f in findings if "Nping" in f.title)
+    assert "look up" not in nping.next_step and not nping.references  # no version -> no CVE lookup
     assert any("995 closed" in t for t in by_title)
 
 

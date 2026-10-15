@@ -147,7 +147,9 @@ def _explain_open_port(module: str, label: str, p: dict) -> Finding:
         nxt = "Find out what owns this port (ask the system owner, or run `sudo lsof -i :%d` on the host)." % port
 
     refs = []
-    if software:
+    # Only suggest a CVE lookup when nmap found a VERSION: CVEs apply to specific
+    # versions, so searching for a bare product name isn't useful.
+    if p["version"]:
         # Teach the habit: look up the exact software version in vulnerability databases.
         nxt += (f" Then look up '{software}' for known vulnerabilities (CVEs) and check it's "
                 f"still supported by the vendor.")
@@ -155,7 +157,8 @@ def _explain_open_port(module: str, label: str, p: dict) -> Finding:
     if p["service"] == "tcpwrapped":
         what += (" Nmap says 'tcpwrapped': the connection opened, then closed immediately "
                  "without any data. Something (a firewall or access-control wrapper) accepts "
-                 "the connection but refuses to talk to you.")
+                 "the connection but refuses to talk to you. So nmap could NOT confirm what is "
+                 "really running here - the service name above is only a guess from the port number.")
     return Finding(module, title, severity, what, why, nxt, evidence=evidence, references=refs)
 
 
