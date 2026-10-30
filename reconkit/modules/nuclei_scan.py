@@ -36,7 +36,7 @@ WHY_BY_SEVERITY = {
 def build_command(binary: str, target: Target, out_path: Path, severity: str = "") -> list[str]:
     cmd = [
         binary,
-        "-u", target.url() if target.scheme else target.host,
+        "-u", target.url() if (target.scheme or target.port) else target.host,
         "-jsonl",                 # one JSON object per line, easy to parse
         "-o", str(out_path),
         "-silent",                # findings only, no banner

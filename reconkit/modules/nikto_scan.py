@@ -75,7 +75,7 @@ RULES = [
 
 
 def build_command(binary: str, target: Target, out_path: Path) -> list[str]:
-    host = target.url() if target.scheme else target.host
+    host = target.url() if (target.scheme or target.port) else target.host
     return [
         binary,
         "-h", host,

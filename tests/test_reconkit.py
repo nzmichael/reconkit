@@ -239,3 +239,11 @@ def test_report_escapes_hostile_tool_output(tmp_path):
     assert "<script>alert(1)</script>" not in page and "&lt;script&gt;" in page
     assert "[HIGH] <script>" in paths["markdown"].read_text()
     assert json.loads(paths["json"].read_text())["target"] == "example.com"
+
+
+def test_web_tools_keep_the_port(tmp_path):
+    # "localhost:3000" must scan port 3000, not the default port 80.
+    t = parse_target("localhost:3000")
+    assert "http://localhost:3000/" in nikto_scan.build_command("nikto", t, tmp_path / "n.json")
+    assert "http://localhost:3000/" in nuclei_scan.build_command("nuclei", t, tmp_path / "n.jsonl")
+    assert "scanme.nmap.org" in nikto_scan.build_command("nikto", parse_target("scanme.nmap.org"), tmp_path / "n.json")
